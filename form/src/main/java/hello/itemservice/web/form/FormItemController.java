@@ -2,6 +2,7 @@ package hello.itemservice.web.form;
 
 import hello.itemservice.domain.item.Item;
 import hello.itemservice.domain.item.ItemRepository;
+import hello.itemservice.domain.item.ItemType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -35,6 +36,11 @@ public class FormItemController {
         return regions;
     }
 
+    @ModelAttribute("itemTypes")
+    public ItemType[] itemTypes() {
+        return ItemType.values();
+    }
+
     @GetMapping
     public String items(Model model) {
         List<Item> items = itemRepository.findAll();
@@ -51,11 +57,13 @@ public class FormItemController {
 
     @GetMapping("/add")
     public String addForm(Model model) {
-        model.addAttribute("item", new Item());
+        Item item = new Item();
+        item.setItemType(ItemType.ETC);
+        model.addAttribute("item", item);
         return "form/addForm";
     }
 
-//     addForm과 거의 동일하다.
+//     addForm2메서드는 addForm메서드와 거의 동일하다.
 //     ModelAttribute이 Model 객체를 생성해서 넘겨주는 점은 동일
 //     하지만 차이점은 쿼리 파라미터로 Item 객체 값이 넘어오게 되면 채워서 response 함
 //    @GetMapping("/add")
@@ -68,6 +76,8 @@ public class FormItemController {
     public String addItem(@ModelAttribute Item item, RedirectAttributes redirectAttributes) {
         log.info("item.open={}", item.getOpen());
         log.info("item.regions={}", item.getRegions());
+        log.info("item.itemType={}", item.getItemType());
+
         Item savedItem = itemRepository.save(item);
         redirectAttributes.addAttribute("itemId", savedItem.getId());
         redirectAttributes.addAttribute("status", true);
