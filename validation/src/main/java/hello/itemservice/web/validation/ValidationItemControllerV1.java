@@ -3,6 +3,7 @@ package hello.itemservice.web.validation;
 import hello.itemservice.domain.item.Item;
 import hello.itemservice.domain.item.ItemRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -11,7 +12,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 @Controller
 @RequestMapping("/validation/v1/items")
 @RequiredArgsConstructor
@@ -40,12 +44,14 @@ public class ValidationItemControllerV1 {
     }
 
     @PostMapping("/add")
-    public String addItem(@ModelAttribute Item item, RedirectAttributes redirectAttributes, Model model) {
+    public String addItem(@ModelAttribute Item item,
+                          RedirectAttributes redirectAttributes, Model model) {
 
         // 검증 오류 결과 저장
-        HashMap<String, String> errors = new HashMap<>();
+        Map<String, String> errors = new ConcurrentHashMap<>();
 
         // 검증 로직
+        // StringUtils.hasText는 null과 빈 문자열 모두 체크해준다.
         if(!StringUtils.hasText(item.getItemName())) {
             errors.put("itemName", "상품 이름은 필수입니다.");
         }
@@ -66,13 +72,15 @@ public class ValidationItemControllerV1 {
             }
         }
 
-        // 검증에 실패하면 다시 입력 폼으로
+        // 검증에 실패하면 다시 입력 폼으로 redirect
+        // ModelAttribute Item 객체 값을 변경하지 않았기 때문에 잘못된 입력 그대로 보여줄 수 있음
         if(!errors.isEmpty()) {
+            log.info("error = {}", errors);
             model.addAttribute("errors", errors);
-            return "validation/v1/addForm";
+            return "/validation/v1/addForm";
         }
 
-        // 검증 후 정상 로직 
+        // 검증 후 정상 로직
         Item savedItem = itemRepository.save(item);
         redirectAttributes.addAttribute("itemId", savedItem.getId());
         redirectAttributes.addAttribute("status", true);
@@ -91,6 +99,5 @@ public class ValidationItemControllerV1 {
         itemRepository.update(itemId, item);
         return "redirect:/validation/v1/items/{itemId}";
     }
-
 }
 
