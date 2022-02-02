@@ -30,7 +30,7 @@
         <div>
             <label for="itemName" th:text="#{label.item.itemName}">상품명</label>
             <input type="text" id="itemName" th:field="*{itemName}"
-                   th:errorclass="field-error" class="form-class" placeholder="이름을 입력하세요">
+                   th:errorclass="field-error" class="form-control" placeholder="이름을 입력하세요">
                     <!-- th:field에서 bindingResult 에러가 발생하면 errorclass가 뒤 class에 자동 추가됨 -->
             <div class="field-error" th:errors="*{itemName}">
                     <!-- th로 if 절에서 오류 검사하고 다시 출력하는 과정을 th:errors로 줄일 수 있었다. -->
