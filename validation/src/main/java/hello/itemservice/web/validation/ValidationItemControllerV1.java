@@ -10,6 +10,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
+import org.springframework.validation.ValidationUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -57,9 +58,14 @@ public class ValidationItemControllerV1 {
          - StringUtils.hasText는 null과 빈 문자열 모두 체크해준다.
          - errors제거 -> BindingResult 적용
         */
-        if(!StringUtils.hasText(item.getItemName())) {
-            bindingResult.rejectValue("itemName", "required");
-        }
+//        if(!StringUtils.hasText(item.getItemName())) {
+//            bindingResult.rejectValue("itemName", "required");
+//        }
+
+        // 위와 같이 if hasText 검사 대신 ValidationUtils 에거 제공하는 메서드를 통해 간단하게 한 줄로 검증할 수 있다.
+        // 내부적으로 들어가면 결과적으로는 동일한 메서드를 호출하고 있음
+        ValidationUtils.rejectIfEmptyOrWhitespace(bindingResult, "itemName", "required");
+
         if(item.getPrice() == null || item.getPrice() < 1000 || item.getPrice() > 1000000) {
             bindingResult.rejectValue("price", "range", new Object[]{1000, 1000000}, null);
         }
