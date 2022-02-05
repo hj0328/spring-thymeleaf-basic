@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.DataBinder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -19,7 +21,17 @@ import java.util.List;
 public class ValidationItemControllerV1 {
 
     private final ItemRepository itemRepository;
-    private final ItemValidator validator;
+    private final ItemValidator itemValidator;
+
+    /*
+    ValidationItemControllerV1에서 컬트롤러가 불릴 때마다
+    support 되는 validator에 대해서 validate를 수행한다.
+     */
+    @InitBinder
+    public void init(DataBinder dataBinder) {
+        log.info("data binder {}", dataBinder);
+        dataBinder.addValidators(itemValidator);
+    }
 
     @GetMapping
     public String items(Model model) {
@@ -42,15 +54,11 @@ public class ValidationItemControllerV1 {
     }
 
     @PostMapping("/add")
-    public String addItem(@ModelAttribute Item item, BindingResult bindingResult,
+    public String addItem(@Validated @ModelAttribute Item item, BindingResult bindingResult,
                           RedirectAttributes redirectAttributes, Model model) {
         // bindingResult는 이미 타겟(item)에 대해 알고 있다.
         log.info("ObjectName={}", bindingResult.getObjectName());   // item
         log.info("target={}", bindingResult.getTarget());   // item 객체
-
-        if(validator.supports(Item.class)){
-            validator.validate(item, bindingResult);
-        }
 
         // 검증에 실패하면 다시 입력 폼으로 redirect
         // ModelAttribute Item 객체 값을 변경하지 않았기 때문에 잘못된 입력 그대로 보여줄 수 있음
