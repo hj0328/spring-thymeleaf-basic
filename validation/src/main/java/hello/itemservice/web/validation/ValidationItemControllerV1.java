@@ -25,7 +25,7 @@ public class ValidationItemControllerV1 {
 
     /*
     ValidationItemControllerV1에서 컬트롤러가 불릴 때마다
-    support 되는 validator에 대해서 validate를 수행한다.
+    support 되는 validator에 대해서 validate 수행
      */
     @InitBinder
     public void init(DataBinder dataBinder) {
